@@ -185,8 +185,27 @@ void SPI_ReceiveData (SPI_RegDef_t* pSPIx, uint8_t* pRxBuffer, uint32_t Len)
  * IRQ Handling
  */
 
-void SPI_IRQITConfig(uint8_t IRQNumber, uint8_t EnorDi);
-void SPI_IRQPriorityConfig(uint8_t IRQNumber, uint8_t IRQPriority);
+void SPI_IRQITConfig(uint8_t IRQNumber, uint8_t EnorDi)
+{
+	if (EnorDi == ENABLE)
+	{
+		volatile uint32_t* nvic_iser_addr = NVIC_ISER0 + (IRQNumber/32);
+		*(nvic_iser_addr) |= (1 << IRQNumber % 32);
+	}
+	else
+	{
+		volatile uint32_t* nvic_icer_addr = NVIC_ICER0 + (IRQNumber/32);
+		*(nvic_icer_addr) &= ~(1 << IRQNumber % 32);
+	}
+}
+
+
+void SPI_IRQPriorityConfig(uint8_t IRQNumber, uint8_t IRQPriority)
+{
+
+}
+
+
 void SPI_IRQHandling(SPI_Handle_t* pSPIHandle);
 
 

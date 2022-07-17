@@ -123,7 +123,7 @@ int main()
 		uint8_t cmd_code = CMD_LED_CTRL;
 		sw_delay(1);
 		SPI_SendData(SPITx.pSPIx, &cmd_code, 1);
-		// Can do a dummy read here to clear RXNE
+		// Can do a dummy read here to clear RXNE (not being done currently)
 		sw_delay(1);
 		SPI_ReceiveData(SPITx.pSPIx, &ackbyte, 1);
 
