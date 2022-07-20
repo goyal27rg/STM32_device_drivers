@@ -10,6 +10,10 @@
 
 #include "stm32f429xx.h"
 
+#define SPI_READY           0
+#define SPI_BUSY_IN_RX      1
+#define SPI_BUSY_IN_TX      2
+
 /*
  * Configuration struct for SPIx peripheral
  */
@@ -33,7 +37,12 @@ typedef struct {
 	// Pointer to SPIx base addr
 	SPI_RegDef_t *pSPIx;
 	SPI_Config_t SPI_Config;
-
+	uint8_t      *pTxBuffer;
+	uint8_t      *pRxBuffer;
+	uint32_t     TxLen;
+	uint32_t     RxLen;
+	uint8_t      TxState;
+	uint8_t      RxState;
 
 }SPI_Handle_t;
 

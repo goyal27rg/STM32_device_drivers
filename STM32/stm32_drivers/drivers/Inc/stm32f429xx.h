@@ -9,6 +9,7 @@
 #define INC_STM32F429XX_H_
 
 #include<stdint.h>
+#include<stddef.h>
 
 #define __vo volatile
 
@@ -421,9 +422,13 @@ typedef struct {
 #define SPI_CR1_BIDIMODE    15
 
 #define SPI_CR2_SSOE        2
+#define SPI_CR2_ERRIE       5
+#define SPI_CR2_RXNEIE      6
+#define SPI_CR2_TXEIE       7
 
 #define SPI_SR_RXNE         0
 #define SPI_SR_TXE          1
+#define SPI_SR_OVR          6
 #define SPI_SR_BSY          7
 
 
