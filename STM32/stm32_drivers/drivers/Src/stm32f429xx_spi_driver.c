@@ -272,19 +272,19 @@ void SPI_IRQHandling(SPI_Handle_t* pSPIHandle)
 	// Check for TXE Flag set
 	if(pSPIHandle->pSPIx->SPI_SR & (1 << SPI_SR_TXE) && pSPIHandle->pSPIx->SPI_CR2 & (1 << SPI_CR2_TXEIE))
 	{
-		SPI_txe_interrupt_handler();
+		SPI_txe_interrupt_handler(pSPIHandle);
 	}
 
 	// Check for RXNE Flag set
 	if (pSPIHandle->pSPIx->SPI_SR & (1 << SPI_SR_RXNE) && pSPIHandle->pSPIx->SPI_CR2 & (1 << SPI_CR2_RXNEIE))
 	{
-		SPI_rxne_interrupt_handler();
+		SPI_rxne_interrupt_handler(pSPIHandle);
 	}
 
 	// Check for overrun, OVR Flag
 	if (pSPIHandle->pSPIx->SPI_SR & (1 << SPI_SR_OVR) && pSPIHandle->pSPIx->SPI_CR2 & (1 << SPI_CR2_ERRIE))
 	{
-		SPI_ovr_interrupt_handler();
+		SPI_ovr_interrupt_handler(pSPIHandle);
 	}
 }
 
@@ -312,6 +312,7 @@ void SPI_txe_interrupt_handler(SPI_Handle_t *pSPIHandle)
 		pSPIHandle->TxLen = 0;
 		pSPIHandle->pTxBuffer = NULL;
 		pSPIHandle->TxState = SPI_READY;
+		//SPI_EventApplicationCallback(pSPIHandle, SPI_EVENT_TX_CMPLT)
 	}
 }
 
@@ -340,7 +341,8 @@ void SPI_rxne_interrupt_handler(SPI_Handle_t *pSPIHandle)
 
 		pSPIHandle->RxLen = 0;
 		pSPIHandle->pRxBuffer = NULL;
-		pSPIHandle->R xState = SPI_READY;
+		pSPIHandle->RxState = SPI_READY;
+		//SPI_EventApplicationCallback(pSPIHandle, SPI_EVENT_RX_CMPLT)
 	}
 }
 
@@ -348,7 +350,17 @@ void SPI_rxne_interrupt_handler(SPI_Handle_t *pSPIHandle)
 void SPI_ovr_interrupt_handler(SPI_Handle_t *pSPIHandle)
 {
 	// 1. Clear the OVR
+	// OVR cleared by read access to SPI_DR followed by read access to SPI_SR
+	// Clear if SPI Periph is not busy in Tx otherwise the data in the buffer maybe needed
+	//uint8_t dummy;
+	//if (pSPIHandle->TxState != SPI_BUSY_IN_TX)
+//	{
+//		dummy = *(pSPIHandle->pSPIx->SPI_DR);
+//		dummy = *(pSPIHandle->pSPIx->SPI_SR);
+//	}
+
 	// 2. Inform the Application
+	//SPI_EventApplicationCallback(pSPIHandle, SPI_EVENT_OVR_ERR)
 }
 
 
