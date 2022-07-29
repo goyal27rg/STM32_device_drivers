@@ -131,7 +131,7 @@ void GPIO_Init(GPIO_Handle_t *pGPIOHandle)
 	}
 
 	// 2. Configure the speed
-	pGPIOHandle->pGPIOx->OSPEEDR &= ~(0b11 <<  pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+   	pGPIOHandle->pGPIOx->OSPEEDR &= ~(0b11 <<  pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
 	pGPIOHandle->pGPIOx->OSPEEDR |= (pGPIOHandle->GPIO_PinConfig.GPIO_PinSpeed) << (2 * pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
 
 	// 3. Configure pull-up pull-down

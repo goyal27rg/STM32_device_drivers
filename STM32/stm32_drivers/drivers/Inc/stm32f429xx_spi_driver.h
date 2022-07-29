@@ -14,6 +14,12 @@
 #define SPI_BUSY_IN_RX      1
 #define SPI_BUSY_IN_TX      2
 
+// SPI Callback Event defintions
+#define SPI_EVENT_TX_CMPLT  3
+#define SPI_EVENT_RX_CMPLT  4
+#define SPI_EVENT_OVR_ERR   5
+
+
 /*
  * Configuration struct for SPIx peripheral
  */
@@ -127,7 +133,8 @@ void SPI_DeInit(SPI_Handle_t* pSPIHandle);
  */
 void SPI_SendData(SPI_RegDef_t* pSPIx, uint8_t* pTxBuffer, uint32_t Len);
 void SPI_ReceiveData (SPI_RegDef_t* pSPIx, uint8_t* pRxBuffer, uint32_t Len);
-
+uint8_t SPI_SendDataIT (SPI_Handle_t * pSPIHandle, uint8_t* pTxBuffer, uint32_t Len);
+uint8_t SPI_ReceiveDataIT (SPI_Handle_t* pSPIHandle, uint8_t* pRxBuffer, uint32_t Len);
 
 /*
  * IRQ Handling
@@ -139,5 +146,9 @@ void SPI_IRQHandling(SPI_Handle_t* pSPIHandle);
 
 
 void SPI_SSOE_Config(SPI_RegDef_t* pSPIx, uint8_t EnoOrDi);
+
+
+// Event Callback
+void SPI_ApplicationEventCallback(SPI_Handle_t *pSPIHandle, uint8_t event);
 
 #endif /* INC_STM32F429XX_SPI_DRIVER_H_ */

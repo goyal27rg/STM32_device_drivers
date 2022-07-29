@@ -8,9 +8,20 @@
 
 #include "stm32f429xx_spi_driver.h"
 
+
+// Helper functions
+// "static" keyword makes the scope limited to this file
+// Application should not be able to access these
 static void SPI_txe_interrupt_handler(SPI_Handle_t *pSPIHandle);
 static void SPI_rxne_interrupt_handler(SPI_Handle_t *pSPIHandle);
 static void SPI_ovr_interrupt_handler(SPI_Handle_t *pSPIHandle);
+
+
+void sw_delay_ms(int delay)
+{
+	int i=0;
+	for (; i < delay*1000; i++);
+}
 
 
 /*********************************************************************
@@ -312,7 +323,8 @@ void SPI_txe_interrupt_handler(SPI_Handle_t *pSPIHandle)
 		pSPIHandle->TxLen = 0;
 		pSPIHandle->pTxBuffer = NULL;
 		pSPIHandle->TxState = SPI_READY;
-		//SPI_EventApplicationCallback(pSPIHandle, SPI_EVENT_TX_CMPLT)
+
+		SPI_ApplicationEventCallback(pSPIHandle, SPI_EVENT_TX_CMPLT);
 	}
 }
 
@@ -342,7 +354,8 @@ void SPI_rxne_interrupt_handler(SPI_Handle_t *pSPIHandle)
 		pSPIHandle->RxLen = 0;
 		pSPIHandle->pRxBuffer = NULL;
 		pSPIHandle->RxState = SPI_READY;
-		//SPI_EventApplicationCallback(pSPIHandle, SPI_EVENT_RX_CMPLT)
+
+		SPI_ApplicationEventCallback(pSPIHandle, SPI_EVENT_RX_CMPLT);
 	}
 }
 
@@ -352,15 +365,23 @@ void SPI_ovr_interrupt_handler(SPI_Handle_t *pSPIHandle)
 	// 1. Clear the OVR
 	// OVR cleared by read access to SPI_DR followed by read access to SPI_SR
 	// Clear if SPI Periph is not busy in Tx otherwise the data in the buffer maybe needed
-	//uint8_t dummy;
-	//if (pSPIHandle->TxState != SPI_BUSY_IN_TX)
-//	{
-//		dummy = *(pSPIHandle->pSPIx->SPI_DR);
-//		dummy = *(pSPIHandle->pSPIx->SPI_SR);
-//	}
+	uint8_t dummy;
+	if (pSPIHandle->TxState != SPI_BUSY_IN_TX)
+	{
+		dummy = pSPIHandle->pSPIx->SPI_DR;
+		dummy = pSPIHandle->pSPIx->SPI_SR;
+	}
+
+	(void) dummy;  // Just to avoid 'unsued-variable' warning
 
 	// 2. Inform the Application
-	//SPI_EventApplicationCallback(pSPIHandle, SPI_EVENT_OVR_ERR)
+	SPI_ApplicationEventCallback(pSPIHandle, SPI_EVENT_OVR_ERR);
+}
+
+
+ __attribute__((weak)) void SPI_ApplicationEventCallback(SPI_Handle_t *pSPIHandle, uint8_t event)
+{
+	// Weak implementation
 }
 
 

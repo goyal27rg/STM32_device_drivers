@@ -205,7 +205,7 @@ typedef struct {
 
 #define EXTI         ((EXTI_RegDef_t*) EXTI_BASEADDR)
 
-#define SYSCFG       ((SYSCFG_RegDef_t*) EXTI_BASEADDR)
+#define SYSCFG       ((SYSCFG_RegDef_t*) SYSCFG_BASEADDR)
 
 #define SPI1         ((SPI_RegDef_t*) SPI1_BASEADDR)
 #define SPI2         ((SPI_RegDef_t*) SPI2_BASEADDR)
@@ -435,5 +435,6 @@ typedef struct {
 #include "stm32f429xx_gpio_driver.h"
 #include "stm32f429xx_spi_driver.h"
 
+void sw_delay_ms(int delay);
 
 #endif /* INC_STM32F429XX_H_ */
