@@ -226,7 +226,7 @@ uint8_t SPI_SendDataIT(SPI_Handle_t *pSPIHandle, uint8_t* pTxBuffer, uint32_t Le
 uint8_t SPI_ReceiveDataIT(SPI_Handle_t *pSPIHandle, uint8_t* pRxBuffer, uint32_t Len)
 {
 	// Non-Blocking API
-	uint8_t state = pSPIHandle->RxState;
+	__vo uint8_t state = pSPIHandle->RxState;
 	if (state != SPI_BUSY_IN_RX)
 	{
 		// 1. Send Rx Buffer and Len information in global variables
