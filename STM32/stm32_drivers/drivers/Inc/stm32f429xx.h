@@ -10,6 +10,7 @@
 
 #include<stdint.h>
 #include<stddef.h>
+#include<stdlib.h>
 
 #define __vo volatile
 
@@ -185,6 +186,21 @@ typedef struct {
 }SPI_RegDef_t;
 
 
+typedef struct {
+	__vo uint32_t I2C_CR1;
+	__vo uint32_t I2C_CR2;
+	__vo uint32_t I2C_OAR1;
+	__vo uint32_t I2C_OAR2;
+	__vo uint32_t I2C_DR;
+	__vo uint32_t I2C_SR1;
+	__vo uint32_t I2C_SR2;
+	__vo uint32_t I2C_CCR;
+	__vo uint32_t I2C_TRISE;
+	__vo uint32_t I2C_FLTR;
+
+}I2C_RegDef_t;
+
+
 /*
  * Peripheral definitions (Peripheral base addresses typecasted to xxx_RegDef_t )
  */
@@ -213,6 +229,10 @@ typedef struct {
 #define SPI4         ((SPI_RegDef_t*) SPI4_BASEADDR)
 #define SPI5         ((SPI_RegDef_t*) SPI5_BASEADDR)
 #define SPI6         ((SPI_RegDef_t*) SPI6_BASEADDR)
+
+#define I2C1         ((I2C_RegDef_t*) I2C1_BASEADDR)
+#define I2C2         ((I2C_RegDef_t*) I2C2_BASEADDR)
+#define I2C3         ((I2C_RegDef_t*) I2C3_BASEADDR)
 
 
 /*
@@ -430,6 +450,40 @@ typedef struct {
 #define SPI_SR_TXE          1
 #define SPI_SR_OVR          6
 #define SPI_SR_BSY          7
+
+// Bit position definitions for I2C
+#define I2C_CR1_PE          0
+#define I2C_CR1_SMBUS       1
+#define I2C_CR1_SMBTYPE     3
+#define I2C_CR1_ENARP       4
+#define I2C_CR1_ENPEC       5
+#define I2C_CR1_ENGC        6
+#define I2C_CR1_NOSTRECH    7
+#define I2C_CR1_START       8
+#define I2C_CR1_STOP        9
+#define I2C_CR1_ACK         10
+#define I2C_CR1_POS         11
+#define I2C_CR1_PEC         12
+#define I2C_CR1_ALERT       13
+#define I2C_CR1_SWRST       14
+
+#define I2C_CR2_FREQ        0
+#define I2C_CR2_ITERREN     8
+#define I2C_CR2_ITEVTEN     9
+#define I2C_CR2_ITBUFEN     10
+#define I2C_CR2_DMAEN       11
+#define I2C_CR2_LAST        12
+
+#define I2C_SR1_SB          0
+#define I2C_SR1_ADDR        1
+#define I2C_SR1_BTF         2
+#define I2C_SR1_STOPF       4
+#define I2C_SR1_RXNE        6
+#define I2C_SR1_TXE         7
+#define I2C_SR1_ARLO        9
+#define I2C_SR1_AF          10
+#define I2C_SR1_OVR         11
+#define I2C_SR1_TIMEOUT     14
 
 
 #include "stm32f429xx_gpio_driver.h"
