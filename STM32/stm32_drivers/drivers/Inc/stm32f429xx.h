@@ -485,9 +485,20 @@ typedef struct {
 #define I2C_SR1_OVR         11
 #define I2C_SR1_TIMEOUT     14
 
+#define I2C_SR2_MSL         0
+#define I2C_SR2_BUSY        1
+#define I2C_SR2_TRA         2
+#define I2C_SR2_RES         3
+#define I2C_SR2_GENCALL     4
+#define I2C_SR2_SMBDEFAULT  5
+#define I2C_SR2_SMBHOST     6
+#define I2C_SR2_DUALF       7
+#define I2C_SR2_PEC         8
+
 
 #include "stm32f429xx_gpio_driver.h"
 #include "stm32f429xx_spi_driver.h"
+#include "stm32f429xx_i2c_driver.h"
 
 void sw_delay_ms(int delay);
 

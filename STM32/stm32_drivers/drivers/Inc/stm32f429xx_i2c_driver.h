@@ -24,6 +24,9 @@
 #define I2C_FLAG_OVR              (1 << I2C_SR1_OVR)
 #define I2C_FLAG_TIMEOUT          (1 << I2C_SR1_TIMEOUT)
 
+#define I2C_DISABLE_SR            RESET
+#define I2C_ENABLE_SR             SET
+
 
 /*
  * Configuration struct for I2Cx peripheral
@@ -43,6 +46,12 @@ typedef struct {
 	I2C_Config_t I2C_Config;
 }I2C_Handle_t;
 
+/*
+ * I2C application states
+ */
+#define I2C_READY 					0
+#define I2C_BUSY_IN_RX 				1
+#define I2C_BUSY_IN_TX 				2
 
 /*
  * @I2C_SCLSpeed
@@ -63,9 +72,13 @@ typedef struct {
  * @I2C_FMDutyCycle
  */
 
-#define I2C_FM_DUTY_2             0  // t_low/t_high = 2
-#define I2C_FM_DUTY_16_9          1  // t_low/t_high = 16/9
+#define I2C_FM_DUTY_2             0  // t_low/t_high = 2Z
+/*
+ * I2C master Read/Write
+ */
 
+#define I2C_MASTER_ADDR_FLAG_READ   1
+#define I2C_MASTER_ADDR_FLAG_WRITE  0
 
 
 /**************************************************************************************
@@ -92,6 +105,7 @@ void I2C_DeInit(I2C_Handle_t *pI2CHandle);
  */
 
 void I2C_MasterSendData(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint32_t Len, uint8_t Slaveddr);
+void I2C_MasterReceiveData(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint32_t Len, uint8_t Slaveddr);
 
 /*
  * IRQ Handling
