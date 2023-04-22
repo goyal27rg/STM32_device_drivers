@@ -44,7 +44,18 @@ typedef struct {
 typedef struct {
 	I2C_RegDef_t *pI2Cx;
 	I2C_Config_t I2C_Config;
+
+	//Following are necessary for interrupt handling
+	uint8_t      *pTxBuffer;  // To store application Transmit buffer address
+	uint8_t      *pRxBuffer;  // To store application Receive buffer address
+	uint32_t     TxLen;
+	uint32_t     RxLen;
+	uint8_t      TxRxState;   // No separate states for Tx and Rx because I2C is a simplex protocol
+	uint8_t      DevAddr;     // Slave / Device address
+	uint32_t     RxSize;
+	uint8_t      Sr;          // Repeated Start
 }I2C_Handle_t;
+
 
 /*
  * I2C application states
@@ -107,16 +118,22 @@ void I2C_DeInit(I2C_Handle_t *pI2CHandle);
 void I2C_MasterSendData(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint32_t Len, uint8_t Slaveddr);
 void I2C_MasterReceiveData(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint32_t Len, uint8_t Slaveddr);
 
+uint8_t I2C_MasterSendDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint32_t Len, uint8_t Slaveddr);
+uint8_t I2C_MasterReceiveDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint32_t Len, uint8_t Slaveddr);
+
 /*
  * IRQ Handling
  */
 
 void I2C_IRQITConfig(uint8_t IRQNumber, uint8_t EnorDi);
 void I2C_IRQPriorityConfig(uint8_t IRQNumber, uint8_t IRQPriority);
+void I2C_IRQHandling(I2C_Handle_t *pI2CHandle);
 
-
+/*
+ * Control functions
+ */
 void I2C_PeripheralControl(I2C_RegDef_t* pI2Cx, uint8_t EnoOrDi);
-
+void I2C_ManageAcking(I2C_RegDef_t *pI2Cx, uint8_t EnorDi);
 
 //Misc functions
 uint8_t I2C_GetFlagStatus(I2C_RegDef_t* pI2Cx, uint8_t flag);

@@ -381,7 +381,12 @@ typedef struct {
 #define IRQ_NO_SPI4          84
 #define IRQ_NO_SPI5          85
 #define IRQ_NO_SPI6          86
-
+#define IRQ_NO_I2C1_EV       31
+#define IRQ_NO_I2C1_ER       32
+#define IRQ_NO_I2C2_EV       33
+#define IRQ_NO_I2C2_ER       34
+#define IRQ_NO_I2C3_EV       72
+#define IRQ_NO_I2C3_ER       73
 
 /*
  * IRQ priorities STM32F42xxx MCU

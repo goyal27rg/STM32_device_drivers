@@ -326,6 +326,66 @@ void I2C_MasterReceiveData(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint32_
 }
 
 
+uint8_t I2C_MasterSendDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint32_t Len, uint8_t Slaveddr)
+{
+	__vo uint8_t state = pI2CHandle->TxRxState;
+	if(state != I2C_BUSY_IN_TX)
+	{
+		pI2CHandle->TxRxState = I2C_BUSY_IN_TX;
+		state = I2C_BUSY_IN_TX;
+		pI2CHandle->TxLen = Len;
+		pI2CHandle->pTxBuffer = pTxBuffer;
+		pI2CHandle->DevAddr = Slaveddr;
+
+		I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
+
+		pI2CHandle->pI2Cx->I2C_CR2 |= (1 << I2C_CR2_ITBUFEN);  // Enable ITBUFEN
+		pI2CHandle->pI2Cx->I2C_CR2 |= (1 << I2C_CR2_ITEVTEN);  // Enable ITEVTEN
+	}
+	return state;
+}
+
+void I2C_IRQHandling(I2C_Handle_t *pI2CHandle)
+{
+	// check the reason for interrupt
+	uint32_t TempI2cSr1 = pI2CHandle->pI2Cx->I2C_SR1;
+	if(TempI2cSr1 & I2C_FLAG_SB)
+	{
+		// Start bit set. I2C_SR1 read at the beginning of this function cleared the SB flag
+		// Address Phase can begin
+		I2C_ExecuteAddressPhase(pI2CHandle->pI2Cx, pI2CHandle->DevAddr, I2C_MASTER_ADDR_FLAG_WRITE);
+	}
+	else if(TempI2cSr1 & I2C_FLAG_ADDR)
+	{
+		// ADDR bit set. Clear the flag.
+		I2C_ClearADDRFlag(pI2CHandle);
+	}
+	else if(TempI2cSr1 & I2C_FLAG_TXE)
+	{
+		if(pI2CHandle->TxLen > 0)
+		{
+			pI2CHandle->pI2Cx->I2C_DR = *pI2CHandle->pTxBuffer;
+			pI2CHandle->TxLen--;
+			pI2CHandle->pTxBuffer++;
+		}
+	}
+	if((TempI2cSr1 & I2C_FLAG_TXE) && (TempI2cSr1 & I2C_FLAG_BTF))
+	{
+		// Disable interrupts
+		pI2CHandle->pI2Cx->I2C_CR2 &= ~(1 << I2C_CR2_ITBUFEN);  // Disable ITBUFEN
+		pI2CHandle->pI2Cx->I2C_CR2 &= ~(1 << I2C_CR2_ITEVTEN);  // Disable ITEVTEN
+		pI2CHandle->TxLen = 0;
+		pI2CHandle->pTxBuffer = NULL;
+		pI2CHandle->DevAddr = 0;
+		pI2CHandle->TxRxState = I2C_READY;
+		I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
+	}
+}
+
+
+//uint8_t I2C_MasterReceiveDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint32_t Len, uint8_t Slaveddr);
+
+
 static void I2C_GenerateStartCondition(I2C_RegDef_t* pI2Cx)
 {
 	// Set I2C_CR1.START = 1 (repeated start)
@@ -398,6 +458,43 @@ static void I2C_ClearADDRFlag(I2C_Handle_t *pI2CHandle )
 		dummy_read = pI2CHandle->pI2Cx->I2C_SR2;
 		(void)dummy_read;
 	}
+}
 
+void I2C_IRQITConfig(uint8_t IRQNumber, uint8_t EnorDi)
+{
+	uint8_t iser_reg_no = IRQNumber / 32;
+	uint8_t iser_reg_offset = IRQNumber % 32;
+
+	if (EnorDi == ENABLE)
+	{
+		switch(iser_reg_no)
+		{
+		case 0: *NVIC_ISER0 |= (1 << iser_reg_offset);
+		case 1: *NVIC_ISER1 |= (1 << iser_reg_offset);
+		case 2: *NVIC_ISER2 |= (1 << iser_reg_offset);
+		case 3: *NVIC_ISER3 |= (1 << iser_reg_offset);
+		}
+	}
+	else
+	{
+		switch(iser_reg_no)
+		{
+		case 0: *NVIC_ICER0 |= (1 << iser_reg_offset);
+		case 1: *NVIC_ICER1 |= (1 << iser_reg_offset);
+		case 2: *NVIC_ICER2 |= (1 << iser_reg_offset);
+		case 3: *NVIC_ICER3 |= (1 << iser_reg_offset);
+		}
+	}
+}
+
+void I2C_IRQPriorityConfig(uint8_t IRQNumber, uint8_t IRQPriority)
+{
+	uint8_t IprRegNo = IRQNumber / 4;
+	uint8_t IprRegOffset = IRQNumber % 4;
+	uint8_t shift = IprRegOffset * 8 + 8 - NO_PR_BITS_IMPLEMENTED;
+
+	__vo uint32_t *IprReg = (NVIC_IPR_BASEADDR + IprRegNo * 4);
+	*IprReg &= ~(0xF << shift);
+	*IprReg |= (IRQPriority << shift);
 
 }

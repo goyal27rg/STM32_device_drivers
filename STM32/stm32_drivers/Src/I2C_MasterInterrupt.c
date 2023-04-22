@@ -12,7 +12,7 @@ I2C_Handle_t I2CTx;
 GPIO_Handle_t GpioButton;
 GPIO_Handle_t GpioLed;
 
-uint8_t data[100];// = "rakgoy: I2C Master to Slave Tx\n";
+uint8_t data[100] = "Hello how are khana kha ke jana\n";
 
 
 void GPIO_Button_Init()
@@ -80,8 +80,11 @@ int main()
 
 	GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_13, 0);
 
+	I2C_IRQITConfig(IRQ_NO_I2C1_EV, ENABLE);
+
 	//enable the i2c peripheral
 	I2C_PeripheralControl(I2C1,ENABLE);
+	I2C_ManageAcking(I2C1,I2C_ACK_ENABLE);
 
 	while(1)
 	{
@@ -92,10 +95,10 @@ int main()
 
 		GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_13, 1);
 		sw_delay_ms(250);
-
+/*
 		// send command code 0x51 to read length from slave
 		data[0] = 0x51;
-		I2C_MasterSendData(&I2CTx, data, 1,  SLAVE_ADDR);
+		while(I2C_MasterSendDataIT(&I2CTx, data, 1,  SLAVE_ADDR) == I2C_BUSY_IN_TX);
 
 		// save the length in data[0]
 		I2C_MasterReceiveData(&I2CTx, data, 1, SLAVE_ADDR);
@@ -104,13 +107,20 @@ int main()
 
 		// send command code 0x52 to ask for data
 		data[0] = 0x52;
-		I2C_MasterSendData(&I2CTx, data, 1,  SLAVE_ADDR);
+		while(I2C_MasterSendDataIT(&I2CTx, data, 1,  SLAVE_ADDR) == I2C_BUSY_IN_TX);
 
 		I2C_MasterReceiveData(&I2CTx, data, Len, SLAVE_ADDR);
-
-		I2C_MasterSendData(&I2CTx, data, Len, SLAVE_ADDR);
+*/
+		I2C_MasterSendDataIT(&I2CTx, data, strlen((char*)data), SLAVE_ADDR);
+		while(I2CTx.TxRxState == I2C_BUSY_IN_TX);
 
 		//if (!strcmp((char*) data, "x"))
 	//		while(1);
 	}
+}
+
+
+void I2C1_EV_IRQHandler()
+{
+	I2C_IRQHandling(&I2CTx);
 }
