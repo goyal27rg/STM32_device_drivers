@@ -405,7 +405,7 @@ void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle)
 			// Transfer complete, STOP the communication.
 			I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
 			I2C_CloseI2C(pI2CHandle);
-
+			I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_TX_CMPLT);
 		}
 	}
 
@@ -435,6 +435,7 @@ void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle)
 		{
 			I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
 			I2C_CloseI2C(pI2CHandle);
+			I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_RX_CMPLT);
 		}
 	}
 }

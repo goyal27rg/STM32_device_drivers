@@ -67,7 +67,6 @@ typedef struct {
 /*
  * @I2C_SCLSpeed
  */
-
 #define I2C_SCL_SPEED_SM          100000  // Standard Mode, 100 KHz
 #define I2C_SCL_SPEED_FM2K        200000  // Fast Mode, 200 KHz
 #define I2C_SCL_SPEED_FM4K        400000  // Fast Mode, 400 KHz
@@ -75,22 +74,33 @@ typedef struct {
 /*
  * @I2C_ACKControl
  */
-
 #define I2C_ACK_ENABLE            1
 #define I2C_ACK_DISABLE           0  // Default is 0
 
 /*
  * @I2C_FMDutyCycle
  */
-
 #define I2C_FM_DUTY_2             0  // t_low/t_high = 2Z
+
 /*
  * I2C master Read/Write
  */
-
 #define I2C_MASTER_ADDR_FLAG_READ   1
 #define I2C_MASTER_ADDR_FLAG_WRITE  0
 
+/*
+ * I2C application events macros
+ */
+#define I2C_EV_TX_CMPLT  	 	0
+#define I2C_EV_RX_CMPLT  	 	1
+#define I2C_EV_STOP       		2
+#define I2C_ERROR_BERR 	 		3
+#define I2C_ERROR_ARLO  		4
+#define I2C_ERROR_AF    		5
+#define I2C_ERROR_OVR   		6
+#define I2C_ERROR_TIMEOUT 		7
+#define I2C_EV_DATA_REQ         8
+#define I2C_EV_DATA_RCV         9
 
 /**************************************************************************************
  *                              APIs Supported by this driver

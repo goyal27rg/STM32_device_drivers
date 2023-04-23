@@ -16,7 +16,7 @@ uint8_t cmd_code;
 uint8_t recv_buff[100];
 
 
-void GPIO_Button_Init()
+void GPIO_LED_and_Button_Init()
 {
 	GpioButton.pGPIOx = GPIOA;
 	GpioButton.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_0;
@@ -26,12 +26,14 @@ void GPIO_Button_Init()
 	GPIO_Init(&GpioButton);
 
 	GpioLed.pGPIOx = GPIOG;
-	GpioLed.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_13;
 	GpioLed.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_OUTP;
 	GpioLed.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_PP;
 	GpioLed.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
 	GpioLed.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PU;
 
+	GpioLed.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_13;
+	GPIO_Init(&GpioLed);
+	GpioLed.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_14;
 	GPIO_Init(&GpioLed);
 }
 
@@ -77,7 +79,7 @@ int main()
 	I2C1_GPIO_Init();
 	I2C_Inits();
 
-	GPIO_Button_Init();
+	GPIO_LED_and_Button_Init();
 
 	GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_13, 0);
 
@@ -125,4 +127,29 @@ int main()
 void I2C1_EV_IRQHandler()
 {
 	I2C_EV_IRQHandling(&I2CTx);
+}
+
+void I2C_ApplicationEventCallback(I2C_Handle_t *pI2CHandle, uint8_t event)
+{
+	if (event == I2C_EV_TX_CMPLT)
+	{
+		GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_14, 0);
+		sw_delay_ms(100);
+		GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_14, 1);
+		sw_delay_ms(500);
+	}
+	if (event == I2C_EV_RX_CMPLT)
+	{
+		int count = 2;
+		while (count > 0)
+		{
+			GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_14, 0);
+			sw_delay_ms(100);
+			GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_14, 1);
+			sw_delay_ms(100);
+			count--;
+		}
+		sw_delay_ms(500);
+	}
+	GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_14, 0);
 }
