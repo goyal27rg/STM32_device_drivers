@@ -440,6 +440,15 @@ void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle)
 	}
 }
 
+void I2C_SlaveSendData(I2C_RegDef_t *pI2Cx, uint8_t data)
+{
+	pI2Cx->I2C_DR = data;
+}
+
+uint8_t I2C_SlaveReceiveData(I2C_RegDef_t *pI2Cx)
+{
+	return pI2Cx->I2C_DR;
+}
 
 static void I2C_GenerateStartCondition(I2C_RegDef_t* pI2Cx)
 {
