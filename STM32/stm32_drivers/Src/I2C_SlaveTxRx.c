@@ -99,27 +99,14 @@ int main()
 		GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_13, 1);
 		sw_delay_ms(250);
 
-		// send command code 0x51 to read length from slave
-		cmd_code = 0x51;
-		I2C_MasterSendDataIT(&I2CTx, &cmd_code, 1,  SLAVE_ADDR);
-		while(I2CTx.TxRxState != I2C_READY);
+		/*
+		 * For slave, in both Tx and Rx cases, first event is setting of ADDR flag in I2C_SR1 register
+		 * So, we clear it by reading SR1 followed by reading SR2
+		 * Then, if:
+		 * 1. TxE is set, that means data is to sent, i.e. Slave Transmitter case
+		 * 2. RxNE is set, that means data is to received, i.e. Slave Receiver case
+		 */
 
-		// save the length in data[0]
-		I2C_MasterReceiveDataIT(&I2CTx, recv_buff, 1, SLAVE_ADDR);
-		while(I2CTx.TxRxState != I2C_READY);
-
-		uint8_t Len = recv_buff[0];
-
-		// send command code 0x52 to ask for data
-		cmd_code = 0x52;
-		I2C_MasterSendDataIT(&I2CTx, &cmd_code, 1,  SLAVE_ADDR);
-		while(I2CTx.TxRxState != I2C_READY);
-
-		I2C_MasterReceiveDataIT(&I2CTx, recv_buff, Len, SLAVE_ADDR);
-		while(I2CTx.TxRxState != I2C_READY);
-
-		// Just to verify
-		I2C_MasterSendData(&I2CTx, recv_buff, Len,  SLAVE_ADDR);
 	}
 }
 
