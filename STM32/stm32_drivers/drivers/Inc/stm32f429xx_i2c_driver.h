@@ -142,12 +142,14 @@ uint8_t I2C_SlaveReceiveData(I2C_RegDef_t *pI2Cx);
 void I2C_IRQITConfig(uint8_t IRQNumber, uint8_t EnorDi);
 void I2C_IRQPriorityConfig(uint8_t IRQNumber, uint8_t IRQPriority);
 void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle);
+void I2C_ER_IRQHandling(I2C_Handle_t *pI2CHandle);
 
 /*
  * Control functions
  */
 void I2C_PeripheralControl(I2C_RegDef_t* pI2Cx, uint8_t EnoOrDi);
 void I2C_ManageAcking(I2C_RegDef_t *pI2Cx, uint8_t EnorDi);
+void I2C_SlaveEnableDisableCallbackEvents(I2C_RegDef_t *pI2Cx, uint8_t EnorDi);
 
 //Misc functions
 uint8_t I2C_GetFlagStatus(I2C_RegDef_t* pI2Cx, uint8_t flag);

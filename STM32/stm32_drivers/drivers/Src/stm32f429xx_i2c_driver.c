@@ -342,6 +342,8 @@ uint8_t I2C_MasterSendDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint3
 
 		pI2CHandle->pI2Cx->I2C_CR2 |= (1 << I2C_CR2_ITBUFEN);  // Enable ITBUFEN
 		pI2CHandle->pI2Cx->I2C_CR2 |= (1 << I2C_CR2_ITEVTEN);  // Enable ITEVTEN
+		pI2CHandle->pI2Cx->I2C_CR2 |= (1 << I2C_CR2_ITERREN);  // Enable ITERREN
+
 	}
 	return state;
 }
@@ -361,6 +363,7 @@ uint8_t I2C_MasterReceiveDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, ui
 
 		pI2CHandle->pI2Cx->I2C_CR2 |= (1 << I2C_CR2_ITBUFEN);  // Enable ITBUFEN
 		pI2CHandle->pI2Cx->I2C_CR2 |= (1 << I2C_CR2_ITEVTEN);  // Enable ITEVTEN
+		pI2CHandle->pI2Cx->I2C_CR2 |= (1 << I2C_CR2_ITERREN);  // Enable ITERREN
 	}
 	return state;
 }
@@ -368,6 +371,8 @@ uint8_t I2C_MasterReceiveDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, ui
 void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle)
 {
 	// check the reason for interrupt
+	uint8_t evIntEnable = 1;//pI2CHandle->pI2Cx->I2C_CR2 & (1 << I2C_CR2_ITEVTEN);
+	uint8_t buffIntEnable = 1;//pI2CHandle->pI2Cx->I2C_CR2 & (1 << I2C_CR2_ITBUFEN);
 	uint32_t TempI2cSr1 = pI2CHandle->pI2Cx->I2C_SR1;
 
 	if(TempI2cSr1 & I2C_FLAG_SB)
@@ -380,7 +385,7 @@ void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle)
 		I2C_ExecuteAddressPhase(pI2CHandle->pI2Cx, pI2CHandle->DevAddr, I2cRWFlag);
 	}
 
-	if(TempI2cSr1 & I2C_FLAG_ADDR)
+	if(evIntEnable && (TempI2cSr1 & I2C_FLAG_ADDR))
 	{
 		if ((pI2CHandle->TxRxState == I2C_BUSY_IN_RX) && pI2CHandle->RxLen == 1)
 		{
@@ -391,10 +396,10 @@ void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle)
 	}
 
 	// Handle the setting of TxE bit
-	if(TempI2cSr1 & I2C_FLAG_TXE)
+	if(buffIntEnable && (TempI2cSr1 & I2C_FLAG_TXE))
 	{
 		// Check Device mode
-		if(pI2CHandle->pI2Cx->I2C_SR2 && (1 << I2C_SR2_MSL))
+		if(pI2CHandle->pI2Cx->I2C_SR2 & (1 << I2C_SR2_MSL))
 		{
 			// Master mode
 			if(pI2CHandle->TxLen > 0)
@@ -424,9 +429,9 @@ void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle)
 	}
 
 	// Handle the setting of RxNE bit
-	if (TempI2cSr1 & I2C_FLAG_RXNE)
+	if(buffIntEnable && (TempI2cSr1 & I2C_FLAG_RXNE))
 	{
-		if(pI2CHandle->pI2Cx->I2C_SR2 && (1 << I2C_SR2_MSL))
+		if(pI2CHandle->pI2Cx->I2C_SR2 & (1 << I2C_SR2_MSL))
 		{
 			// Handle the special case of single byte reception
 			if (pI2CHandle->RxLen == 1)
@@ -478,6 +483,18 @@ void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle)
 		I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_STOP);
 	}
 
+}
+
+void I2C_ER_IRQHandling(I2C_Handle_t *pI2CHandle)
+{
+	// check the reason for interrupt
+	uint32_t TempI2cSr1 = pI2CHandle->pI2Cx->I2C_SR1;
+
+	if (TempI2cSr1 & (1 << I2C_SR1_AF))
+	{
+		// Clear by writing 0 to AF field of I2C_SR1
+		pI2CHandle->pI2Cx->I2C_SR1 &= ~(1 << I2C_SR1_AF);
+	}
 }
 
 void I2C_SlaveSendData(I2C_RegDef_t *pI2Cx, uint8_t data)
@@ -573,6 +590,7 @@ void I2C_CloseI2C(I2C_Handle_t *pI2CHandle)
 	// Disable interrupts
 	pI2CHandle->pI2Cx->I2C_CR2 &= ~(1 << I2C_CR2_ITBUFEN);  // Disable Buffer interrupt
 	pI2CHandle->pI2Cx->I2C_CR2 &= ~(1 << I2C_CR2_ITEVTEN);  // Disable Event interrupt
+	pI2CHandle->pI2Cx->I2C_CR2 &= ~(1 << I2C_CR2_ITERREN);  // Disable Error interrupt
 
 	// Clear the application's context
 	pI2CHandle->RxLen = 0;
@@ -588,4 +606,20 @@ void I2C_CloseI2C(I2C_Handle_t *pI2CHandle)
 
 	}
 
+}
+
+void I2C_SlaveEnableDisableCallbackEvents(I2C_RegDef_t *pI2Cx, uint8_t EnorDi)
+{
+	if (EnorDi == ENABLE)
+	{
+		pI2Cx->I2C_CR2 |= (1 << I2C_CR2_ITBUFEN);  // Enable ITBUFEN
+		pI2Cx->I2C_CR2 |= (1 << I2C_CR2_ITEVTEN);  // Enable ITEVTEN
+		pI2Cx->I2C_CR2 |= (1 << I2C_CR2_ITERREN);  // Enable ITERREN
+	}
+	else
+	{
+		pI2Cx->I2C_CR2 &= ~(1 << I2C_CR2_ITBUFEN);  // Disable ITBUFEN
+		pI2Cx->I2C_CR2 &= ~(1 << I2C_CR2_ITEVTEN);  // Disable ITEVTEN
+		pI2Cx->I2C_CR2 &= ~(1 << I2C_CR2_ITERREN);  // Disable ITERREN
+	}
 }

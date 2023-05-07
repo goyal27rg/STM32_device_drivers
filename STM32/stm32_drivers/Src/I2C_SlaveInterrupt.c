@@ -5,15 +5,13 @@
 #include "stm32f429xx.h"
 #include <string.h>
 
-#define DUMMY_ADDR 0x61  // Make
 #define SLAVE_ADDR 0x68
 
 I2C_Handle_t I2CTx;
 GPIO_Handle_t GpioButton;
 GPIO_Handle_t GpioLed;
 
-uint8_t cmd_code;
-uint8_t recv_buff[100];
+uint8_t Tx_buff[100] = "Hello World!";
 
 
 void GPIO_LED_and_Button_Init()
@@ -66,7 +64,7 @@ void I2C_Inits()
 
 	I2CTx.pI2Cx = I2C1;
 	I2CTx.I2C_Config.I2C_ACKControl = I2C_ACK_ENABLE;
-	I2CTx.I2C_Config.I2C_DeviceAddress = DUMMY_ADDR;
+	I2CTx.I2C_Config.I2C_DeviceAddress = SLAVE_ADDR;
 	I2CTx.I2C_Config.I2C_FMDutyCycle = I2C_FM_DUTY_2;
 	I2CTx.I2C_Config.I2C_SCLSpeed = I2C_SCL_SPEED_SM;
 
@@ -85,28 +83,17 @@ int main()
 
 	I2C_IRQITConfig(IRQ_NO_I2C1_EV, ENABLE);
 
+	// For Master mode, interrupts are enabled in I2C_MasterSendDataIT and I2C_MasterReceiveDataIT functions
+	// Need to enable separately for Slave mode
+
+	I2C_SlaveEnableDisableCallbackEvents(I2CTx.pI2Cx, ENABLE);
+
 	//enable the i2c peripheral
 	I2C_PeripheralControl(I2C1,ENABLE);
 	I2C_ManageAcking(I2C1,I2C_ACK_ENABLE);
 
 	while(1)
 	{
-		GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_13, 0);
-
-		while(GPIO_ReadFromInputPin(GpioButton.pGPIOx, GPIO_PIN_NO_0) == 0);
-		while(GPIO_ReadFromInputPin(GpioButton.pGPIOx, GPIO_PIN_NO_0));
-
-		GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_13, 1);
-		sw_delay_ms(250);
-
-		/*
-		 * For slave, in both Tx and Rx cases, first event is setting of ADDR flag in I2C_SR1 register
-		 * So, we clear it by reading SR1 followed by reading SR2
-		 * Then, if:
-		 * 1. TxE is set, that means data is to sent, i.e. Slave Transmitter case
-		 * 2. RxNE is set, that means data is to received, i.e. Slave Receiver case
-		 */
-
 	}
 }
 
@@ -116,27 +103,47 @@ void I2C1_EV_IRQHandler()
 	I2C_EV_IRQHandling(&I2CTx);
 }
 
+
+void I2C1_ER_IRQHandler()
+{
+	I2C_ER_IRQHandling(&I2CTx);
+}
+
+
 void I2C_ApplicationEventCallback(I2C_Handle_t *pI2CHandle, uint8_t event)
 {
-	if (event == I2C_EV_TX_CMPLT)
+	static uint8_t cmd_code = 0;
+	static uint8_t count = 0;
+
+	if (event == I2C_EV_DATA_REQ)
 	{
-		GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_14, 0);
-		sw_delay_ms(100);
-		GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_14, 1);
-		sw_delay_ms(500);
-	}
-	if (event == I2C_EV_RX_CMPLT)
-	{
-		int count = 2;
-		while (count > 0)
+		// Master requested data, Slave needs to send
+		if (cmd_code == 0x51)
 		{
-			GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_14, 0);
-			sw_delay_ms(100);
-			GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_14, 1);
-			sw_delay_ms(100);
-			count--;
+			// Length of message requested by master
+			I2C_SlaveSendData(pI2CHandle->pI2Cx, strlen((char*) Tx_buff));
 		}
-		sw_delay_ms(500);
+		else if (cmd_code == 0x52)
+		{
+			// Send the message
+			I2C_SlaveSendData(pI2CHandle->pI2Cx, Tx_buff[count++]);
+		}
 	}
-	GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_14, 0);
+	else if (event == I2C_EV_DATA_RCV)
+	{
+		// Data is waiting to be received by the Slave
+		cmd_code = I2C_SlaveReceiveData(pI2CHandle->pI2Cx);
+	}
+	else if (event == I2C_EV_STOP)
+	{
+		// Happens only during Slave reception
+		// Master has ended communication
+	}
+	else if (event == I2C_ERROR_AF)
+	{
+		// ACK Failure. Happens only in Slave transmission mode
+		// Master has sent NACK. Slave shouldn't send any more data
+		cmd_code = 0xff;  // Invalidate command code
+		count = 0;
+	}
 }
