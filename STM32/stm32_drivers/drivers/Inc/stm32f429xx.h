@@ -201,6 +201,16 @@ typedef struct {
 }I2C_RegDef_t;
 
 
+typedef struct {
+	__vo uint32_t USART_SR;
+	__vo uint32_t USART_DR;
+	__vo uint32_t USART_BRR;
+	__vo uint32_t USART_CR1;
+	__vo uint32_t USART_CR2;
+	__vo uint32_t USART_CR3;
+	__vo uint32_t USART_GTPR;
+}USART_RegDef_t;
+
 /*
  * Peripheral definitions (Peripheral base addresses typecasted to xxx_RegDef_t )
  */
@@ -234,6 +244,12 @@ typedef struct {
 #define I2C2         ((I2C_RegDef_t*) I2C2_BASEADDR)
 #define I2C3         ((I2C_RegDef_t*) I2C3_BASEADDR)
 
+#define USART1       ((USART_RegDef_t*) USART1_BASEADDR)
+#define USART2       ((USART_RegDef_t*) USART2_BASEADDR)
+#define USART3       ((USART_RegDef_t*) USART3_BASEADDR)
+#define UART4        ((USART_RegDef_t*) UART4_BASEADDR)
+#define UART5        ((USART_RegDef_t*) UART5_BASEADDR)
+#define USART6       ((USART_RegDef_t*) USART6_BASEADDR)
 
 /*
  * Clock enable macros for GPIOx peripherals
@@ -500,10 +516,68 @@ typedef struct {
 #define I2C_SR2_DUALF       7
 #define I2C_SR2_PEC         8
 
+// Bit position definitions for USART
+#define USART_SR_PE         0
+#define USART_SR_FE         1
+#define USART_SR_NF         2
+#define USART_SR_ORE        3
+#define USART_SR_IDLE       4
+#define USART_SR_RXNE       5
+#define USART_SR_TC         6
+#define USART_SR_TXE        7
+#define USART_SR_LBD        8
+#define USART_SR_CTS        9
+
+#define USART_BRR_DIV_Factor    0
+#define USART_BRR_DIV_Mantissa  4
+
+#define USART_CR1_SBK           0
+#define USART_CR1_RWU           1
+#define USART_CR1_RE            2
+#define USART_CR1_TE            3
+#define USART_CR1_IDLEIE        4
+#define USART_CR1_RXNEIE        5
+#define USART_CR1_TCIE          6
+#define USART_CR1_TXEIE         7
+#define USART_CR1_PEIE          8
+#define USART_CR1_PS            9
+#define USART_CR1_PCE           10
+#define USART_CR1_WAKE          11
+#define USART_CR1_M             12
+#define USART_CR1_UE            13
+#define USART_CR1_OVER8         15
+
+#define USART_CR2_ADD           0
+#define USART_CR2_LBDL          5
+#define USART_CR2_LBDIE         6
+#define USART_CR2_LBCL          8
+#define USART_CR2_CPHA          9
+#define USART_CR2_CPOL          10
+#define USART_CR2_CLKEN         11
+#define USART_CR2_STOP          12
+#define USART_CR2_LINEN         14
+
+#define USART_CR3_EIE           0
+#define USART_CR3_IREN          1
+#define USART_CR3_IRLP          2
+#define USART_CR3_HDSEL         3
+#define USART_CR3_NACK          4
+#define USART_CR3_SCEN          5
+#define USART_CR3_DMAR          6
+#define USART_CR3_DMAT          7
+#define USART_CR3_RTSE          8
+#define USART_CR3_CTSE          9
+#define USART_CR3_CTSIE         10
+#define USART_CR3_ONEBIT        11
+
+#define USART_GTPR_PSC          0
+#define USART_GTPR_GT           8
+
 
 #include "stm32f429xx_gpio_driver.h"
 #include "stm32f429xx_spi_driver.h"
 #include "stm32f429xx_i2c_driver.h"
+#include "stm32f429xx_usart_driver.h"
 
 void sw_delay_ms(int delay);
 
