@@ -528,7 +528,7 @@ typedef struct {
 #define USART_SR_LBD        8
 #define USART_SR_CTS        9
 
-#define USART_BRR_DIV_Factor    0
+#define USART_BRR_DIV_Fraction  0
 #define USART_BRR_DIV_Mantissa  4
 
 #define USART_CR1_SBK           0
