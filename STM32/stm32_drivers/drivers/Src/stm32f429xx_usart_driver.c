@@ -163,4 +163,94 @@ void USART_Init(USART_Handle_t *pUSARTHandle)
 }
 
 
+// TODO(implement USART_DeInit
 void USART_DeInit(USART_Handle_t *pUSARTHandle);
+
+
+/*
+ * USARTx Send and Receive
+ */
+
+void USART_MasterSendData(USART_Handle_t *pUSARTHandle, uint8_t *pTxBuffer, uint32_t Len)
+{
+	// Enable USART
+	pUSARTHandle->pUSARTx->USART_CR1 |= (1 << USART_CR1_UE);
+
+	while (Len > 0)
+	{
+		/*
+		 * USART_CR1.{M, PCE} bits decide the actual number of data bits in a UART frame as follows:
+		 * ----------------------------------
+		 * | M PCE | Data size in UART frame|
+		 * |-------|------------------------|
+		 * | 0  0  | 8 bit data             |
+		 * | 0  1  | 7-bit data             |
+		 * | 1  0  | 9-bit data             |
+		 * | 1  1  | 8-bit data             |
+		 * ----------------------------------
+		 */
+		// uint32_t tempUSARTCR1 = pUSARTHandle->pUSARTx->USART_CR1;
+		uint8_t tempUSARTCR1_M = (pUSARTHandle->pUSARTx->USART_CR1 & (1 << USART_CR1_M)) >> USART_CR1_M;
+		uint8_t tempUSARTCR1_PCE = (pUSARTHandle->pUSARTx->USART_CR1 & (1 << USART_CR1_PCE)) >> USART_CR1_PCE;
+		while (! USART_GetFlagStatus(pUSARTHandle->pUSARTx, (1 << USART_SR_TXE)));
+
+		if ((0 == tempUSARTCR1_M && 0 == tempUSARTCR1_PCE)
+				|| (1 == tempUSARTCR1_M && 1 == tempUSARTCR1_PCE))
+		{
+			//(M==0 && PCE=0) || (M==1 && PCE==1)
+			// => 8-bit data
+			pUSARTHandle->pUSARTx->USART_DR = *pTxBuffer;
+			pTxBuffer++;
+			Len--;
+		}
+		else if (tempUSARTCR1_M)
+		{
+			// 9-bit data
+			uint16_t *pdata = (uint16_t*) pTxBuffer;
+			pUSARTHandle->pUSARTx->USART_DR = *pdata & ((1 << 9) - 1);
+			pTxBuffer++;
+			pTxBuffer++;
+			Len--;
+			Len--;
+		}
+		else
+		{
+			// 7-bit data
+			pUSARTHandle->pUSARTx->USART_DR = *pTxBuffer & ((1 << 7) - 1);
+			pTxBuffer++;
+			Len--;
+		}
+
+	}
+
+	// wait for transmission to complete
+	while (! USART_GetFlagStatus(pUSARTHandle->pUSARTx, (1 << USART_SR_TC)));
+
+	// Disable USART
+	pUSARTHandle->pUSARTx->USART_CR1 &= ~(1 << USART_CR1_UE);
+}
+
+
+void USART_MasterReceiveData(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len)
+{
+	// Enable USART
+	pUSARTHandle->pUSARTx->USART_CR1 |= (1 << USART_CR1_UE);
+
+	while (Len > 0)
+	{
+		while (! USART_GetFlagStatus(pUSARTHandle->pUSARTx, (1 << USART_SR_RXNE)));
+		*pRxBuffer = pUSARTHandle->pUSARTx->USART_DR;
+		pRxBuffer++;
+		Len--;
+	}
+
+	// Disable USART
+	pUSARTHandle->pUSARTx->USART_CR1 &= ~(1 << USART_CR1_UE);
+}
+
+
+//Misc functions
+uint8_t USART_GetFlagStatus(USART_RegDef_t* pUSARTx, uint8_t flag)
+{
+	return pUSARTx->USART_SR & flag;
+}

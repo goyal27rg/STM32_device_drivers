@@ -30,6 +30,10 @@ typedef struct {
 typedef struct {
 	USART_RegDef_t *pUSARTx;
 	USART_Config_t USART_Config;
+	uint32_t* TxBuffer;
+	uint32_t* RxBuffer;
+	uint32_t TxLen;
+	uint32_t RxLen;
 } USART_Handle_t;
 
 
@@ -111,11 +115,11 @@ void USART_DeInit(USART_Handle_t *pUSARTHandle);
  * USARTx Send and Receive
  */
 
-void USART_MasterSendData(USART_Handle_t *pUSARTHandle, uint8_t *pTxBuffer, uint32_t Len, uint8_t Slaveddr);
-void USART_MasterReceiveData(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len, uint8_t Slaveddr);
+void USART_MasterSendData(USART_Handle_t *pUSARTHandle, uint8_t *pTxBuffer, uint32_t Len);
+void USART_MasterReceiveData(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len);
 
-uint8_t USART_MasterSendDataIT(USART_Handle_t *pUSARTHandle, uint8_t *pTxBuffer, uint32_t Len, uint8_t Slaveddr);
-uint8_t USART_MasterReceiveDataIT(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len, uint8_t Slaveddr);
+uint8_t USART_MasterSendDataIT(USART_Handle_t *pUSARTHandle, uint8_t *pTxBuffer, uint32_t Len);
+uint8_t USART_MasterReceiveDataIT(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len);
 
 void USART_SlaveSendData(USART_RegDef_t *pUSARTx, uint8_t data);
 uint8_t USART_SlaveReceiveData(USART_RegDef_t *pUSARTx);
