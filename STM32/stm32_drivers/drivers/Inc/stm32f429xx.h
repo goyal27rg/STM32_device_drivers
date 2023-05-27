@@ -102,6 +102,14 @@
 // RCC base address
 #define RCC_BASEADDR            (AHB1PERIPH_BASEADDR + 0x3800)
 
+// ADC base address
+#define ADCPERIPH_BASEADDR      (APB2PERIPH_BASEADDR + 0x2000)
+
+#define ADC1_BASEADDR           (ADCPERIPH_BASEADDR)
+#define ADC2_BASEADDR           (ADCPERIPH_BASEADDR + 0x100)
+#define ADC3_BASEADDR           (ADCPERIPH_BASEADDR + 0x200)
+#define ADCCOMMON_BASEADDR      (ADCPERIPH_BASEADDR + 0x300)
+
 
 /***************************** Peripheral Register Definition Structures *******************************/
 typedef struct {
@@ -211,6 +219,32 @@ typedef struct {
 	__vo uint32_t USART_GTPR;
 }USART_RegDef_t;
 
+typedef struct {
+	__vo uint32_t ADC_SR;
+	__vo uint32_t ADC_CR1;
+	__vo uint32_t ADC_CR2;
+	__vo uint32_t ADC_SMPR1;
+	__vo uint32_t ADC_SMPR2;
+	__vo uint32_t ADC_JOFR1;
+	__vo uint32_t ADC_JOFR2;
+	__vo uint32_t ADC_JOFR3;
+	__vo uint32_t ADC_JOFR4;
+	__vo uint32_t ADC_HTR;
+	__vo uint32_t ADC_LTR;
+	__vo uint32_t ADC_SQR1;
+	__vo uint32_t ADC_SQR2;
+	__vo uint32_t ADC_SQR3;
+	__vo uint32_t ADC_JSQR;
+	__vo uint32_t ADC_JDR1;
+	__vo uint32_t ADC_JDR2;
+	__vo uint32_t ADC_JDR3;
+	__vo uint32_t ADC_JDR4;
+	__vo uint32_t ADC_DR;
+	__vo uint32_t ADC_CSR;
+	__vo uint32_t ADC_CCR;
+	__vo uint32_t ADC_CDR;
+}ADC_RegDef_t;
+
 /*
  * Peripheral definitions (Peripheral base addresses typecasted to xxx_RegDef_t )
  */
@@ -250,6 +284,12 @@ typedef struct {
 #define UART4        ((USART_RegDef_t*) UART4_BASEADDR)
 #define UART5        ((USART_RegDef_t*) UART5_BASEADDR)
 #define USART6       ((USART_RegDef_t*) USART6_BASEADDR)
+
+#define ADC1         ((ADC_RegDef_t*) ADC1_BASEADDR)
+#define ADC2         ((ADC_RegDef_t*) ADC2_BASEADDR)
+#define ADC3         ((ADC_RegDef_t*) ADC3_BASEADDR)
+#define ADCCOMMON    ((ADC_RegDef_t*) ADCCOMMON_BASEADDR)
+
 
 /*
  * Clock enable macros for GPIOx peripherals
@@ -309,7 +349,13 @@ typedef struct {
 
 #define SYSCFG_PCLK_EN() (RCC->APB2ENR |= (1 << 14))
 
+/*
+ * Clock enable macros for ADC peripherals
+ */
 
+#define ADC1_PCLK_EN() (RCC->APB2ENR |= (1 << 8))
+#define ADC2_PCLK_EN() (RCC->APB2ENR |= (1 << 9))
+#define ADC3_PCLK_EN() (RCC->APB2ENR |= (1 << 10))
 
 /*
  * Clock disable macros for GPIOx peripherals
@@ -361,6 +407,14 @@ typedef struct {
 #define USART6_PCLK_DI() (RCC->APB2ENR &= ~(1 << 5))
 #define UART7_PCLK_DI()  (RCC->APB1ENR &= ~(1 << 30))
 #define UART8_PCLK_DI()  (RCC->APB1ENR &= ~(1 << 31))
+
+/*
+ * Clock disable macros for ADC peripherals
+ */
+
+#define ADC1_PCLK_DI() (RCC->APB2ENR &= ~(1 << 8))
+#define ADC2_PCLK_DI() (RCC->APB2ENR &= ~(1 << 9))
+#define ADC3_PCLK_DI() (RCC->APB2ENR &= ~(1 << 10))
 
 
 /*
@@ -573,11 +627,70 @@ typedef struct {
 #define USART_GTPR_PSC          0
 #define USART_GTPR_GT           8
 
+// Bit position definitions for ADC
+#define ADC_SR_AWD              0
+#define ADC_SR_EOC              1
+#define ADC_SR_JEOC             2
+#define ADC_SR_JSTRT            3
+#define ADC_SR_STRT             4
+#define ADC_SR_OVR              5
+
+#define ADC_CR1_AWDCH           0
+#define ADC_CR1_EOCIE           5
+#define ADC_CR1_AWDIE           6
+#define ADC_CR1_JEOCIE          7
+#define ADC_CR1_SCAN            8
+#define ADC_CR1_AWDSGL          9
+#define ADC_CR1_JAUTO           10
+#define ADC_CR1_DISCEN          11
+#define ADC_CR1_JDISCEN         12
+#define ADC_CR1_DISCNUM         13
+#define ADC_CR1_JAWDEN          22
+#define ADC_CR1_AWDEN           23
+#define ADC_CR1_OVRIE           26
+
+#define ADC_CR2_ADON            0
+#define ADC_CR2_CONT            1
+#define ADC_CR2_DMA             8
+#define ADC_CR2_DDS             9
+#define ADC_CR2_EOCS            10
+#define ADC_CR2_ALIGN           11
+#define ADC_CR2_JEXTSEL         16
+#define ADC_CR2_JEXTEN          20
+#define ADC_CR2_JSWSTART        22
+#define ADC_CR2_EXTSEL          24
+#define ADC_CR2_EXTEN           28
+#define ADC_CR2_SWSTART         30
+
+#define ADC_SMPR1_SMP10         0
+#define ADC_SMPR1_SMP11         3
+#define ADC_SMPR1_SMP12         6
+#define ADC_SMPR1_SMP13         9
+#define ADC_SMPR1_SMP14         12
+#define ADC_SMPR1_SMP15         15
+#define ADC_SMPR1_SMP16         18
+#define ADC_SMPR1_SMP17         21
+#define ADC_SMPR1_SMP18         24
+
+#define ADC_SMPR2_SMP0          0
+#define ADC_SMPR2_SMP1          3
+#define ADC_SMPR2_SMP2          6
+#define ADC_SMPR2_SMP3          9
+#define ADC_SMPR2_SMP4          12
+#define ADC_SMPR2_SMP5          15
+#define ADC_SMPR2_SMP6          18
+#define ADC_SMPR2_SMP7          21
+#define ADC_SMPR2_SMP8          24
+#define ADC_SMPR2_SMP9          27
+
+#define ADC_SQR1_L              20
+
 
 #include "stm32f429xx_gpio_driver.h"
 #include "stm32f429xx_spi_driver.h"
 #include "stm32f429xx_i2c_driver.h"
 #include "stm32f429xx_usart_driver.h"
+#include "stm32f429xx_adc_driver.h"
 
 void sw_delay_ms(int delay);
 
