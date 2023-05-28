@@ -14,6 +14,7 @@
  */
 typedef struct {
 	uint8_t ADC_ConversionMode;
+	uint8_t ADC_ScanEnOrDi;
 	uint8_t ADC_DataAlignment;
 	uint8_t ADC_NumChannels;
 	uint8_t* ADC_ConversionSequence;
@@ -34,8 +35,7 @@ typedef struct {
  */
 #define ADC_CONVERSION_MODE_SINGLE            0
 #define ADC_CONVERSION_MODE_CONTINUOUS        1
-#define ADC_CONVERSION_MODE_SCAN              2
-#define ADC_CONVERSION_MODE_DISCONTINUOUS     3
+#define ADC_CONVERSION_MODE_DISCONTINUOUS     2
 
 /*
  * ADC Data Alignment

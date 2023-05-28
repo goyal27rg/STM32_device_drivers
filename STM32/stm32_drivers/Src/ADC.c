@@ -91,6 +91,7 @@ void ADC_Inits()
 {
 	ADC.pADCx = ADC3;
 	ADC.ADC_Config.ADC_ConversionMode = ADC_CONVERSION_MODE_CONTINUOUS;
+	ADC.ADC_Config.ADC_ScanEnOrDi = ENABLE;
 	ADC.ADC_Config.ADC_DataAlignment = ADC_DATA_ALIGNMENT_RIGHT_ALIGN;
 	ADC.ADC_Config.ADC_NumChannels = 2;
 	uint8_t ConversionSequence[] = {14, 15};

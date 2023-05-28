@@ -79,6 +79,14 @@ void ADC_Init(ADC_Handle_t *pADCHandle) {
 		temp |= (pADCHandle->ADC_Config.ADC_ConversionSequence[i] << (i * AdcSqrFieldWidth));
 	}
 	pADCHandle->pADCx->ADC_SQR3 = temp;
+
+	// 4. Program SCAN mode Enable/Disable
+	if (pADCHandle->ADC_Config.ADC_ScanEnOrDi == ENABLE) {
+		pADCHandle->pADCx->ADC_CR1 |= (1 << ADC_CR1_SCAN);
+	}
+	else {
+		pADCHandle->pADCx->ADC_CR1 &= ~(1 << ADC_CR1_SCAN);
+	}
 }
 
 void ADC_StartConversion(ADC_Handle_t *pADCHandle) {
