@@ -13,6 +13,7 @@ GPIO_Handle_t GpioButton;
 GPIO_Handle_t GpioLed;
 
 uint8_t Tx_buff[100];
+uint8_t ADC_NumChannels = 2;
 
 
 void GPIO_LED_and_Button_Init()
@@ -78,11 +79,11 @@ void ADC_GPIO_Init()
 	GPIOAdc.pGPIOx = GPIOF;
 	GPIOAdc.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ANALOG;
 
-	// Using PF4 (mapped to ADC3_IN14) as Vx for Joystick
+	// Using PF4 (mapped to ADC3_IN14) as Vy for Joystick
 	GPIOAdc.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_4;
 	GPIO_Init(&GPIOAdc);
 
-	// Using PF5 (mapped to ADC3_IN15) as Vy for Joystick
+	// Using PF5 (mapped to ADC3_IN15) as Vx for Joystick
 	GPIOAdc.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_5;
 	GPIO_Init(&GPIOAdc);
 }
@@ -90,10 +91,10 @@ void ADC_GPIO_Init()
 void ADC_Inits()
 {
 	ADC.pADCx = ADC3;
-	ADC.ADC_Config.ADC_ConversionMode = ADC_CONVERSION_MODE_CONTINUOUS;
+	ADC.ADC_Config.ADC_ConversionMode = ADC_CONVERSION_MODE_SINGLE;
 	ADC.ADC_Config.ADC_ScanEnOrDi = ENABLE;
 	ADC.ADC_Config.ADC_DataAlignment = ADC_DATA_ALIGNMENT_RIGHT_ALIGN;
-	ADC.ADC_Config.ADC_NumChannels = 2;
+	ADC.ADC_Config.ADC_NumChannels = ADC_NumChannels;
 	uint8_t ConversionSequence[] = {14, 15};
 	ADC.ADC_Config.ADC_ConversionSequence = ConversionSequence;
 	ADC_Init(&ADC);
@@ -108,34 +109,25 @@ int main()
 	ADC_GPIO_Init();
 	ADC_Inits();
 
-	//GPIO_LED_and_Button_Init();
+	GPIO_LED_and_Button_Init();
+	GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_13, 0);
 
-	//GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_13, 0);
-	uint32_t data;
+	uint32_t Vx, Vy;
 	char str[10];
 
 	while(1)
 	{
 		//while(GPIO_ReadFromInputPin(GpioButton.pGPIOx, GPIO_PIN_NO_0) == 0);
 		//while(GPIO_ReadFromInputPin(GpioButton.pGPIOx, GPIO_PIN_NO_0));
-		//GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_13, 1);
-		sw_delay_ms(200);
+		GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_13, 1);
+		sw_delay_ms(500);
 
-		strcpy((char*)Tx_buff, "Starting conversion\n");
-		//USART_MasterSendData(&USARTTx, Tx_buff, strlen((char*)Tx_buff));
-		ADC_StartConversion(&ADC);
+		Vx = ADC_ConvertChannel(&ADC, 15);
+		Vy = ADC_ConvertChannel(&ADC, 14);
 
-		while(!(ADC.pADCx->ADC_SR & (1 << ADC_SR_EOC)));
-		data = ADC.pADCx->ADC_DR;
-		sprintf(str, "%d", (int)data);
-		strcat(str, "\n");
- 		USART_MasterSendData(&USARTTx, (uint8_t*)str, strlen((char*)str));
+		sprintf(str, "Vx: %d, Vy: %d\n", (int)Vx, (int)Vy);
+		USART_MasterSendData(&USARTTx, (uint8_t*)str, strlen((char*)str));
 
-		strcpy((char*)Tx_buff, "\nConversion Done\n");
-		//USART_MasterSendData(&USARTTx, Tx_buff, strlen((char*)Tx_buff));
-		ADC_StopConversion(&ADC);
-
-
-		//GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_13, 0);
+		GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_13, 0);
 	}
 }

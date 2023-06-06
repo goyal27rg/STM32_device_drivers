@@ -98,3 +98,18 @@ void ADC_StopConversion(ADC_Handle_t *pADCHandle) {
 	// Clear ADC_CR2.SWSTART
 	pADCHandle->pADCx->ADC_CR2 &= ~(1 << ADC_CR2_SWSTART);
 }
+
+uint32_t ADC_ConvertChannel(ADC_Handle_t *pADCHandle, uint8_t ChannelNum) {
+	uint32_t data;
+
+	// Program Channel number in ADC_SQR3
+	pADCHandle->pADCx->ADC_SQR3 = ChannelNum;
+
+	// Make the conversion
+	ADC_StartConversion(pADCHandle);
+	while(!(pADCHandle->pADCx->ADC_SR & (1 << ADC_SR_EOC)));
+	data = pADCHandle->pADCx->ADC_DR;
+	ADC_StopConversion(pADCHandle);
+
+	return data;
+}

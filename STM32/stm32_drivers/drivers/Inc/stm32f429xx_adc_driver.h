@@ -35,13 +35,12 @@ typedef struct {
  */
 #define ADC_CONVERSION_MODE_SINGLE            0
 #define ADC_CONVERSION_MODE_CONTINUOUS        1
-#define ADC_CONVERSION_MODE_DISCONTINUOUS     2
 
 /*
  * ADC Data Alignment
  */
-#define ADC_DATA_ALIGNMENT_RIGHT_ALIGN         0
-#define ADC_DATA_ALIGNMENT_LEFT_ALIGN        1
+#define ADC_DATA_ALIGNMENT_RIGHT_ALIGN        0
+#define ADC_DATA_ALIGNMENT_LEFT_ALIGN         1
 
 /*
  * ADC Number of Channels
@@ -89,6 +88,7 @@ void ADC_IRQPriorityConfig(uint8_t IRQNumber, uint8_t IRQPriority);
  */
 void ADC_StartConversion(ADC_Handle_t *pADCHandle);
 void ADC_StopConversion(ADC_Handle_t *pADCHandle);
+uint32_t ADC_ConvertChannel(ADC_Handle_t *pADCHandle, uint8_t ChannelNum);
 
 //Misc functions
 uint8_t ADC_GetFlagStatus(ADC_RegDef_t* pADCx, uint8_t flag);
