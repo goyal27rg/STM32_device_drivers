@@ -555,20 +555,20 @@ void I2C_IRQITConfig(uint8_t IRQNumber, uint8_t EnorDi)
 	{
 		switch(IserRegNo)
 		{
-		case 0: *NVIC_ISER0 |= (1 << IserRegOffset);
-		case 1: *NVIC_ISER1 |= (1 << IserRegOffset);
-		case 2: *NVIC_ISER2 |= (1 << IserRegOffset);
-		case 3: *NVIC_ISER3 |= (1 << IserRegOffset);
+		case 0: *NVIC_ISER0 |= (1 << IserRegOffset); break;
+		case 1: *NVIC_ISER1 |= (1 << IserRegOffset); break;
+		case 2: *NVIC_ISER2 |= (1 << IserRegOffset); break;
+		case 3: *NVIC_ISER3 |= (1 << IserRegOffset); break;
 		}
 	}
 	else
 	{
 		switch(IserRegNo)
 		{
-		case 0: *NVIC_ICER0 |= (1 << IserRegOffset);
-		case 1: *NVIC_ICER1 |= (1 << IserRegOffset);
-		case 2: *NVIC_ICER2 |= (1 << IserRegOffset);
-		case 3: *NVIC_ICER3 |= (1 << IserRegOffset);
+		case 0: *NVIC_ICER0 |= (1 << IserRegOffset); break;
+		case 1: *NVIC_ICER1 |= (1 << IserRegOffset); break;
+		case 2: *NVIC_ICER2 |= (1 << IserRegOffset); break;
+		case 3: *NVIC_ICER3 |= (1 << IserRegOffset); break;
 		}
 	}
 }
