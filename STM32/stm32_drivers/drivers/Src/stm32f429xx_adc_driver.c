@@ -66,6 +66,8 @@ void ADC_Init(ADC_Handle_t *pADCHandle) {
 		temp &= ~(1 << ADC_CR2_ALIGN);
 	}
 
+	// TODO(Add another field in ADC_Config for EOCS)
+	temp |= (1 << ADC_CR2_EOCS); // tmp: enable EOCS
 	pADCHandle->pADCx->ADC_CR2 = temp;
 
 	// 3. Program number of regular channels in ADC_SRQ1.L[3:0]
@@ -94,13 +96,33 @@ void ADC_StartConversion(ADC_Handle_t *pADCHandle) {
 	pADCHandle->pADCx->ADC_CR2 |= (1 << ADC_CR2_SWSTART);
 }
 
+void ADC_StartConversionIT(ADC_Handle_t *pADCHandle) {
+	// Enable End of conversion interrupt
+	pADCHandle->pADCx->ADC_CR1 |= (1 << ADC_CR1_EOCIE) | (1 << ADC_CR1_OVRIE);
+
+	// Set ADC_CR2.SWSTART
+	pADCHandle->pADCx->ADC_CR2 |= (1 << ADC_CR2_SWSTART);
+}
+
 void ADC_StopConversion(ADC_Handle_t *pADCHandle) {
+	// Clear ADC_CR2.SWSTART
+	pADCHandle->pADCx->ADC_CR2 &= ~(1 << ADC_CR2_SWSTART);
+}
+
+void ADC_StopConversionIT(ADC_Handle_t *pADCHandle) {
+
+	// Disable End of conversion interrupt
+	pADCHandle->pADCx->ADC_CR1 &= ~(1 << ADC_CR1_EOCIE) & ~(1 << ADC_CR1_OVRIE);
+
 	// Clear ADC_CR2.SWSTART
 	pADCHandle->pADCx->ADC_CR2 &= ~(1 << ADC_CR2_SWSTART);
 }
 
 uint32_t ADC_ConvertChannel(ADC_Handle_t *pADCHandle, uint8_t ChannelNum) {
 	uint32_t data;
+
+	// save ADC_SQR3
+	uint32_t tempAdc_Sqr3 = pADCHandle->pADCx->ADC_SQR3;
 
 	// Program Channel number in ADC_SQR3
 	pADCHandle->pADCx->ADC_SQR3 = ChannelNum;
@@ -111,5 +133,33 @@ uint32_t ADC_ConvertChannel(ADC_Handle_t *pADCHandle, uint8_t ChannelNum) {
 	data = pADCHandle->pADCx->ADC_DR;
 	ADC_StopConversion(pADCHandle);
 
+
+	// reprogram ADC_SQR3 to original value
+	pADCHandle->pADCx->ADC_SQR3 = tempAdc_Sqr3;
+
 	return data;
+}
+
+
+void ADC_IRQITConfig(uint8_t IRQNumber, uint8_t EnorDi)
+{
+	// ADC1, ADC2 and ADC3 IRQs are mapped at position 18 in NVIC
+
+	uint8_t IserRegNo = IRQNumber / 32;
+	uint8_t IserRegOffset = IRQNumber % 32;
+
+	if (EnorDi == ENABLE)
+	{
+		switch(IserRegNo)
+		{
+	 	case 0: *NVIC_ISER0 |= (1 << IserRegOffset); break;
+		}
+	}
+	else
+	{
+		switch(IserRegNo)
+		{
+		case 0: *NVIC_ICER0 |= (1 << IserRegOffset); break;
+		}
+	}
 }

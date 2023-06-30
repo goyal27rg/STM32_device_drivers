@@ -88,6 +88,8 @@ void ADC_IRQPriorityConfig(uint8_t IRQNumber, uint8_t IRQPriority);
  */
 void ADC_StartConversion(ADC_Handle_t *pADCHandle);
 void ADC_StopConversion(ADC_Handle_t *pADCHandle);
+void ADC_StartConversionIT(ADC_Handle_t *pADCHandle);
+void ADC_StopConversionIT(ADC_Handle_t *pADCHandle);
 uint32_t ADC_ConvertChannel(ADC_Handle_t *pADCHandle, uint8_t ChannelNum);
 
 //Misc functions

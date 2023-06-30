@@ -1,10 +1,12 @@
 /*
- * I2C_MasterSendData.c
+ * ADC.c
+ * Convert channel directly, without interrupt
  */
 
 #include "stm32f429xx.h"
 #include <string.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 ADC_Handle_t ADC;
 USART_Handle_t USARTTx;
@@ -91,7 +93,7 @@ void ADC_GPIO_Init()
 void ADC_Inits()
 {
 	ADC.pADCx = ADC3;
-	ADC.ADC_Config.ADC_ConversionMode = ADC_CONVERSION_MODE_SINGLE;
+	ADC.ADC_Config.ADC_ConversionMode = ADC_CONVERSION_MODE_CONTINUOUS;
 	ADC.ADC_Config.ADC_ScanEnOrDi = ENABLE;
 	ADC.ADC_Config.ADC_DataAlignment = ADC_DATA_ALIGNMENT_RIGHT_ALIGN;
 	ADC.ADC_Config.ADC_NumChannels = ADC_NumChannels;
@@ -113,7 +115,7 @@ int main()
 	GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_13, 0);
 
 	uint32_t Vx, Vy;
-	char str[10];
+	char str[50];
 
 	while(1)
 	{
@@ -125,7 +127,7 @@ int main()
 		Vx = ADC_ConvertChannel(&ADC, 15);
 		Vy = ADC_ConvertChannel(&ADC, 14);
 
-		sprintf(str, "Vx: %d, Vy: %d\n", (int)Vx, (int)Vy);
+		sprintf(str, "Vx: %"PRIu32", Vy: %"PRIu32"\n", Vx, Vy);
 		USART_MasterSendData(&USARTTx, (uint8_t*)str, strlen((char*)str));
 
 		GPIO_WriteToOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_13, 0);
