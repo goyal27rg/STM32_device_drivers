@@ -76,6 +76,8 @@
 #define GPIOI_BASEADDR          (AHB1PERIPH_BASEADDR + 0x2000)
 #define GPIOJ_BASEADDR          (AHB1PERIPH_BASEADDR + 0x2400)
 #define GPIOK_BASEADDR          (AHB1PERIPH_BASEADDR + 0x2800)
+#define DMA1_BASEADDR           (AHB1PERIPH_BASEADDR + 0x6000)
+#define DMA2_BASEADDR           (AHB1PERIPH_BASEADDR + 0x6400)
 
 // Peripheral base addresses on APB1 bus
 #define SPI2_BASEADDR           (APB1PERIPH_BASEADDR + 0x3800)
@@ -245,6 +247,69 @@ typedef struct {
 	__vo uint32_t ADC_CDR;
 }ADC_RegDef_t;
 
+typedef struct {
+    __vo uint32_t DMA_LISR;
+    __vo uint32_t DMA_HISR;
+    __vo uint32_t DMA_LIFCR;
+    __vo uint32_t DMA_HIFCR;
+
+    __vo uint32_t DMA_S0CR;
+    __vo uint32_t DMA_S0NDTR;
+    __vo uint32_t DMA_S0PAR;
+    __vo uint32_t DMA_S0M0AR;
+    __vo uint32_t DMA_S0M1AR;
+    __vo uint32_t DMA_S0FCR;
+
+    __vo uint32_t DMA_S1CR;
+    __vo uint32_t DMA_S1NDTR;
+    __vo uint32_t DMA_S1PAR;
+    __vo uint32_t DMA_S1M0AR;
+    __vo uint32_t DMA_S1M1AR;
+    __vo uint32_t DMA_S1FCR;
+
+    __vo uint32_t DMA_S2CR;
+    __vo uint32_t DMA_S2NDTR;
+    __vo uint32_t DMA_S2PAR;
+    __vo uint32_t DMA_S2M0AR;
+    __vo uint32_t DMA_S2M1AR;
+    __vo uint32_t DMA_S2FCR;
+
+    __vo uint32_t DMA_S3CR;
+    __vo uint32_t DMA_S3NDTR;
+    __vo uint32_t DMA_S3PAR;
+    __vo uint32_t DMA_S3M0AR;
+    __vo uint32_t DMA_S3M1AR;
+    __vo uint32_t DMA_S3FCR;
+
+    __vo uint32_t DMA_S4CR;
+    __vo uint32_t DMA_S4NDTR;
+    __vo uint32_t DMA_S4PAR;
+    __vo uint32_t DMA_S4M0AR;
+    __vo uint32_t DMA_S4M1AR;
+    __vo uint32_t DMA_S4FCR;
+
+    __vo uint32_t DMA_S5CR;
+    __vo uint32_t DMA_S5NDTR;
+    __vo uint32_t DMA_S5PAR;
+    __vo uint32_t DMA_S5M0AR;
+    __vo uint32_t DMA_S5M1AR;
+    __vo uint32_t DMA_S5FCR;
+
+    __vo uint32_t DMA_S6CR;
+    __vo uint32_t DMA_S6NDTR;
+    __vo uint32_t DMA_S6PAR;
+    __vo uint32_t DMA_S6M0AR;
+    __vo uint32_t DMA_S6M1AR;
+    __vo uint32_t DMA_S6FCR;
+
+    __vo uint32_t DMA_S7CR;
+    __vo uint32_t DMA_S7NDTR;
+    __vo uint32_t DMA_S7PAR;
+    __vo uint32_t DMA_S7M0AR;
+    __vo uint32_t DMA_S7M1AR;
+    __vo uint32_t DMA_S7FCR;
+} DMA_RegDef_t;
+
 /*
  * Peripheral definitions (Peripheral base addresses typecasted to xxx_RegDef_t )
  */
@@ -289,6 +354,9 @@ typedef struct {
 #define ADC2         ((ADC_RegDef_t*) ADC2_BASEADDR)
 #define ADC3         ((ADC_RegDef_t*) ADC3_BASEADDR)
 #define ADCCOMMON    ((ADC_RegDef_t*) ADCCOMMON_BASEADDR)
+
+#define DMA1         ((DMA_RegDef_t*) DMA1_BASEADDR)
+#define DMA2         ((DMA_RegDef_t*) DMA2_BASEADDR)
 
 
 /*
@@ -341,6 +409,14 @@ typedef struct {
 #define USART6_PCLK_EN() (RCC->APB2ENR |= (1 << 5))
 #define UART7_PCLK_EN()  (RCC->APB1ENR |= (1 << 30))
 #define UART8_PCLK_EN()  (RCC->APB1ENR |= (1 << 31))
+
+
+/*
+ * Clock enable macros for DMA peripheral
+ */
+
+#define DMA1_PCLK_EN() (RCC->AHB1ENR |= (1 << 21))
+#define DMA2_PCLK_EN() (RCC->AHB1ENR |= (1 << 22))
 
 
 /*
@@ -415,6 +491,13 @@ typedef struct {
 #define ADC1_PCLK_DI() (RCC->APB2ENR &= ~(1 << 8))
 #define ADC2_PCLK_DI() (RCC->APB2ENR &= ~(1 << 9))
 #define ADC3_PCLK_DI() (RCC->APB2ENR &= ~(1 << 10))
+
+/*
+ * Clock disable macros for DMA peripheral
+ */
+
+#define DMA1_PCLK_DI() (RCC->AHB1ENR &= ~(1 << 21))
+#define DMA2_PCLK_DI() (RCC->AHB1ENR &= ~(1 << 22))
 
 
 /*
@@ -686,11 +769,129 @@ typedef struct {
 #define ADC_SQR1_L              20
 
 
+// DMA register bit positions
+
+#define DMA_LISR_TCIF3                           27
+#define DMA_LISR_HTIF3                           26
+#define DMA_LISR_TEIF3                           25
+#define DMA_LISR_DMEIF3                          24
+#define DMA_LISR_FEIF3                           22
+#define DMA_LISR_TCIF2                           21
+#define DMA_LISR_HTIF2                           20
+#define DMA_LISR_TEIF2                           19
+#define DMA_LISR_DMEIF2                          18
+#define DMA_LISR_FEIF2                           16
+#define DMA_LISR_TCIF1                           11
+#define DMA_LISR_HTIF1                           10
+#define DMA_LISR_TEIF1                           9
+#define DMA_LISR_DMEIF1                          8
+#define DMA_LISR_FEIF1                           6
+#define DMA_LISR_TCIF0                           5
+#define DMA_LISR_HTIF0                           4
+#define DMA_LISR_TEIF0                           3
+#define DMA_LISR_DMEIF0                          2
+#define DMA_LISR_FEIF0                           0
+
+
+#define DMA_HISR_TCIF7                           27
+#define DMA_HISR_HTIF7                           26
+#define DMA_HISR_TEIF7                           25
+#define DMA_HISR_DMEIF7                          24
+#define DMA_HISR_FEIF7                           22
+#define DMA_HISR_TCIF6                           21
+#define DMA_HISR_HTIF6                           20
+#define DMA_HISR_TEIF6                           19
+#define DMA_HISR_DMEIF6                          18
+#define DMA_HISR_FEIF6                           16
+#define DMA_HISR_TCIF5                           11
+#define DMA_HISR_HTIF5                           10
+#define DMA_HISR_TEIF5                           9 
+#define DMA_HISR_DMEIF5                          8 
+#define DMA_HISR_FEIF5                           6 
+#define DMA_HISR_TCIF4                           5 
+#define DMA_HISR_HTIF4                           4 
+#define DMA_HISR_TEIF4                           3 
+#define DMA_HISR_DMEIF4                          2 
+#define DMA_HISR_FEIF4                           0
+
+ 
+#define DMA_LIFCR_CTCIF3                         27
+#define DMA_LIFCR_CHTIF3                         26
+#define DMA_LIFCR_TEIF3                          25
+#define DMA_LIFCR_CDMEIF3                        24
+#define DMA_LIFCR_CFEIF3                         22
+#define DMA_LIFCR_CTCIF2                         21
+#define DMA_LIFCR_CHTIF2                         20
+#define DMA_LIFCR_CTEIF2                         19
+#define DMA_LIFCR_CDMEIF2                        18
+#define DMA_LIFCR_CFEIF2                         16
+#define DMA_LIFCR_CTCIF1                         11
+#define DMA_LIFCR_CHTIF1                         10
+#define DMA_LIFCR_CTEIF1                         9 
+#define DMA_LIFCR_CDMEIF1                        8 
+#define DMA_LIFCR_CFEIF1                         6 
+#define DMA_LIFCR_CTCIF0                         5 
+#define DMA_LIFCR_CHTIF0                         4 
+#define DMA_LIFCR_CTEIF0                         3 
+#define DMA_LIFCR_CDMEIF0                        2 
+#define DMA_LIFCR_CFEIF0                         0
+
+
+#define DMA_HIFCR_CTCIF7                         27
+#define DMA_HIFCR_CHTIF7                         26
+#define DMA_HIFCR_CTEIF7                         25
+#define DMA_HIFCR_CDMEIF7                        24
+#define DMA_HIFCR_CFEIF7                         22
+#define DMA_HIFCR_CTCIF6                         21
+#define DMA_HIFCR_CHTIF6                         20
+#define DMA_HIFCR_CTEIF6                         19
+#define DMA_HIFCR_CDMEIF6                        18
+#define DMA_HIFCR_CFEIF6                         16
+#define DMA_HIFCR_CTCIF5                         11
+#define DMA_HIFCR_CHTIF5                         10
+#define DMA_HIFCR_CTEIF5                         9 
+#define DMA_HIFCR_CDMEIF5                        8 
+#define DMA_HIFCR_CFEIF5                         6 
+#define DMA_HIFCR_CTCIF4                         5 
+#define DMA_HIFCR_CHTIF4                         4 
+#define DMA_HIFCR_CTEIF4                         3 
+#define DMA_HIFCR_CDMEIF4                        2 
+#define DMA_HIFCR_CFEIF4                         0
+
+#define DMA_SxCR_CHSEL                           25
+#define DMA_SxCR_MBURST                          23
+#define DMA_SxCR_PBURST                          22
+#define DMA_SxCR_CT                              19
+#define DMA_SxCR_DBM                             18
+#define DMA_SxCR_PL                              16
+#define DMA_SxCR_PINCOS                          15
+#define DMA_SxCR_MSIZE                           13
+#define DMA_SxCR_PSIZE                           11
+#define DMA_SxCR_MINC                            10
+#define DMA_SxCR_PINC                            9
+#define DMA_SxCR_CIRC                            8
+#define DMA_SxCR_DIR                             6
+#define DMA_SxCR_PFCTRL                          5
+#define DMA_SxCR_TCIE                            4
+#define DMA_SxCR_HTIE                            3
+#define DMA_SxCR_TEIE                            2
+#define DMA_SxCR_DMEIE                           1
+#define DMA_SxCR_EN                              0
+
+#define DMA_SxNDTR_NDT                           0
+
+#define DMA_SxFCR_FEIE                           7
+#define DMA_SxFCR_FS                             3
+#define DMA_SxFCR_DMDIS                          2
+#define DMA_SxFCR_FTH                            0
+
+
 #include "stm32f429xx_gpio_driver.h"
 #include "stm32f429xx_spi_driver.h"
 #include "stm32f429xx_i2c_driver.h"
 #include "stm32f429xx_usart_driver.h"
 #include "stm32f429xx_adc_driver.h"
+#include "stm32f429xx_dma_driver.h"
 
 void sw_delay_ms(int delay);
 
