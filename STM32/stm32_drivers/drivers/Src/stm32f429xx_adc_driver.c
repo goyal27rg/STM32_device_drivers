@@ -66,8 +66,20 @@ void ADC_Init(ADC_Handle_t *pADCHandle) {
 		temp &= ~(1 << ADC_CR2_ALIGN);
 	}
 
-	// TODO(Add another field in ADC_Config for EOCS)
-	temp |= (1 << ADC_CR2_EOCS); // tmp: enable EOCS
+	// Program DMA mode
+	if (pADCHandle->ADC_Config.ADC_DMAModeEnOrDi == ENABLE)
+	{
+		temp |= (1 << ADC_CR2_DMA);
+	}
+
+	if (pADCHandle->ADC_Config.ADC_ConfigEOC == ADC_EOC_SET_AT_END_OF_EVERY_CONVERSION)
+	{
+		temp |= (1 << ADC_CR2_EOCS);  // enable EOCS
+	}
+
+	// temp: set DDS
+	temp |= (1 << ADC_CR2_DDS);
+
 	pADCHandle->pADCx->ADC_CR2 = temp;
 
 	// 3. Program number of regular channels in ADC_SRQ1.L[3:0]

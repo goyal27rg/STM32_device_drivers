@@ -15,6 +15,8 @@
 typedef struct {
 	uint8_t ADC_ConversionMode;
 	uint8_t ADC_ScanEnOrDi;
+	uint8_t ADC_ConfigEOC;
+	uint8_t ADC_DMAModeEnOrDi;
 	uint8_t ADC_DataAlignment;
 	uint8_t ADC_NumChannels;
 	uint8_t* ADC_ConversionSequence;
@@ -61,6 +63,12 @@ typedef struct {
 #define ADC_NUM_CHANNELS_14    14
 #define ADC_NUM_CHANNELS_15    15
 #define ADC_NUM_CHANNELS_16    16
+
+/*
+ * ADC EOC control
+ */
+#define ADC_EOC_SET_AT_END_OF_SEQUENCE_CONVERSION        0
+#define ADC_EOC_SET_AT_END_OF_EVERY_CONVERSION           1
 
 
 /*

@@ -68,11 +68,15 @@ void DMA_DeInit(DMA_Handle_t *pDMAHandle);
  * IRQ Handling
  */
 
-// void ADC_IRQITConfig(uint8_t IRQNumber, uint8_t EnorDi);
-// void ADC_IRQPriorityConfig(uint8_t IRQNumber, uint8_t IRQPriority);
+void DMA_IRQEnDi(DMA_Handle_t *pDMAHandle, uint8_t IRQNumber, uint8_t EnorDi);
+void DMA_IRQPriorityConfig(uint8_t IRQNumber, uint8_t IRQPriority);
+
 
 /*
  * Control functions
  */
+
+void DMA_Enable(DMA_Handle_t *pDMAHandle);
+void DMA_Disable(DMA_Handle_t *pDMAHandle);
 
 #endif /* INC_STM32F429XX_DMA_DRIVER_H_ */

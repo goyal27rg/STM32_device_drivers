@@ -23,14 +23,16 @@
 // NVIC Base Addresses
 
 // NVIC_ISER* addresses
-#define NVIC_ISER0           ((__vo uint32_t*) 0xE000E100)
+#define NVIC_ISER_BASEADDR   ((__vo uint32_t*) 0xE000E100)
+#define NVIC_ISER0           NVIC_ISER_BASEADDR
 #define NVIC_ISER1           ((__vo uint32_t*) 0xE000E104)
 #define NVIC_ISER2           ((__vo uint32_t*) 0xE000E108)
 #define NVIC_ISER3           ((__vo uint32_t*) 0xE000E10C)
 // There are 4 more ISER registers but the current implementation needs only 4 registers
 
 // NVIC_ICER* addresses
-#define NVIC_ICER0           ((__vo uint32_t*) 0xE000E180)
+#define NVIC_ICER_BASEADDR   ((__vo uint32_t*) 0xE000E180)
+#define NVIC_ICER0           NVIC_ICER_BASEADDR
 #define NVIC_ICER1           ((__vo uint32_t*) 0xE000E184)
 #define NVIC_ICER2           ((__vo uint32_t*) 0xE000E188)
 #define NVIC_ICER3           ((__vo uint32_t*) 0xE000E18C)
@@ -40,7 +42,7 @@
 
 // No. of priority bits implemented per section in the priority register
 #define NO_PR_BITS_IMPLEMENTED       4
-
+#define NVIC_REG_SIZE_BYTE		     4
 
 /*
  * Flash and Main memory base addresses
@@ -894,5 +896,6 @@ typedef struct {
 #include "stm32f429xx_dma_driver.h"
 
 void sw_delay_ms(int delay);
+void NVIC_IRQ_EnDi(uint8_t IRQNumber, uint8_t EnOrDi);
 
 #endif /* INC_STM32F429XX_H_ */

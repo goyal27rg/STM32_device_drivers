@@ -126,14 +126,10 @@ void DMA_Init(DMA_Handle_t *pDMAHandle) {
 	}
 
 	tempDmaSxcr |= pDMAHandle->DMA_Config.DMA_StreamPriorityLevel << DMA_SxCR_PL;
-
 	tempDmaSxcr |= pDMAHandle->DMA_Config.DMA_TransferDirection << DMA_SxCR_DIR;
-
 	tempDmaSxcr |= pDMAHandle->DMA_Config.DMA_CircularModeEnorDi << DMA_SxCR_CIRC;
-
 	tempDmaSxcr |= pDMAHandle->DMA_Config.DMA_PeriphIncrementEnorDi << DMA_SxCR_PINC;
 	tempDmaSxcr |= pDMAHandle->DMA_Config.DMA_MemIncrementEnorDi << DMA_SxCR_MINC;
-
 	tempDmaSxcr |= pDMAHandle->DMA_Config.DMA_PeriphDataWidth << DMA_SxCR_PSIZE;
 	tempDmaSxcr |= pDMAHandle->DMA_Config.DMA_MemDataWidth << DMA_SxCR_MSIZE;
 
@@ -147,13 +143,20 @@ void DMA_Enable(DMA_Handle_t *pDMAHandle) {
 	DMA_SetSxCR(pDMAHandle, DMA_GetSxCR(pDMAHandle) | (1 << DMA_SxCR_EN));
 }
 
+void DMA_Disable(DMA_Handle_t *pDMAHandle) {
+	DMA_SetSxCR(pDMAHandle, DMA_GetSxCR(pDMAHandle) & ~(1 << DMA_SxCR_EN));
+}
 
-
-
-
-
-
-
-
-
-
+void DMA_IRQEnDi(DMA_Handle_t *pDMAHandle, uint8_t IRQNumber, uint8_t EnorDi)
+{
+	if (EnorDi == ENABLE)
+	{
+		DMA_SetSxCR(pDMAHandle, DMA_GetSxCR(pDMAHandle) | (1 << DMA_SxCR_TCIE));
+		NVIC_IRQ_EnDi(IRQNumber, ENABLE);
+	}
+	else
+	{
+		DMA_SetSxCR(pDMAHandle, DMA_GetSxCR(pDMAHandle) & ~(1 << DMA_SxCR_TCIE));
+		NVIC_IRQ_EnDi(IRQNumber, DISABLE);
+	}
+}
