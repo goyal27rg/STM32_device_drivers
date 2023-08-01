@@ -30,7 +30,7 @@ volatile uint32_t* tim2Arr = (uint32_t*) TIM2_ARR;
 
 GPIO_Handle_t GpioButton;
 GPIO_Handle_t GpioLed;
-uint8_t toggle = 0;
+uint8_t timEvent = 0;
 
 
 void GPIO_LED_and_Button_Init()
@@ -55,6 +55,23 @@ void GPIO_LED_and_Button_Init()
 }
 
 
+void tim2_delay_ms_IT(uint32_t delay_ms)
+{
+	uint32_t fclk = 16000000;  // HSI, no AHB or APB prescalar
+	// TODO(add support for timer prescalar)
+
+	uint32_t reload_val = delay_ms * (fclk / 1000);  // no of cycles to count
+	// Enable timer interrupt
+	*tim2Die1 |= (1 << 0);  // DIER.UIE
+
+	// program tim2 ARR;
+	*tim2Arr = reload_val;
+
+	// enable tim2
+	*tim2Cr1 |= (1 << 0);
+}
+
+
 int main()
 {
 	// Misc peripheral init
@@ -68,21 +85,13 @@ int main()
 	// TIM2 is at position 28 in vector table
 	NVIC_IRQ_EnDi(28, ENABLE);
 
-	// set EGR.UG to generated UEV at every over/underflow
-	// *tim2Egr |= (1 << 0);
-
-	// Enable timer interrupt
-	*tim2Die1 |= (1 << 0);  // DIER.UIE
-
-	// program tim2 ARR;
-	*tim2Arr = 0x100000;
-
-	// enable tim2
-	*tim2Cr1 |= (1 << 0);
-
 	while(1)
 	{
-
+		tim2_delay_ms_IT(100);
+		while(! timEvent);
+		timEvent = 0;
+		GPIO_ToggleOutputPin(GpioLed.pGPIOx, 13);
+		GPIO_ToggleOutputPin(GpioLed.pGPIOx, 14);
 	}
 }
 
@@ -92,6 +101,8 @@ void TIM2_IRQHandler(void)
 	// SE needs to clear SR
 	*tim2Sr &= ~(1 << 0);
 
-	GPIO_ToggleOutputPin(GpioLed.pGPIOx, 13);
-	GPIO_ToggleOutputPin(GpioLed.pGPIOx, 14);
+	// disable tim2
+	*tim2Cr1 &= ~(1 << 0);
+
+	timEvent = 1;
 }
