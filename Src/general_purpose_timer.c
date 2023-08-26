@@ -56,8 +56,7 @@ int main()
 	// Misc peripheral init
 	GPIO_LED_and_Button_Init();
 
-	// enable tim2 clock
-	RCC->APB1ENR |= (1 << 0);
+
 
 	// prgroam tim2 ARR;
 	*tim2Arr = 0x100000;

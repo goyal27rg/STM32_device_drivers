@@ -894,6 +894,7 @@ typedef struct {
 #include "stm32f429xx_usart_driver.h"
 #include "stm32f429xx_adc_driver.h"
 #include "stm32f429xx_dma_driver.h"
+#include "stm32f429xx_timer_driver.h"
 
 void sw_delay_ms(int delay);
 void NVIC_IRQ_EnDi(uint8_t IRQNumber, uint8_t EnOrDi);
